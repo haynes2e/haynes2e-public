@@ -1,10 +1,3 @@
-# Publishes the `master` branch to GitHub Pages for this repository
-# (haynes2e.github.io/haynes2e-public/, or haynes2e.com once the custom domain is set).
-#
-# Inactive until BOTH are true:
-#   1. Settings -> Pages -> Source = "GitHub Actions"
-#   2. Repository variable PRODUCTION_ENABLED = true
-# The Web3Forms key comes from the `github-pages` environment secret WEB3FORMS_ACCESS_KEY.
 name: Deploy to production
 
 on:

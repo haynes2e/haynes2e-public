@@ -1,6 +1,3 @@
-# Publishes the `demo` branch to the staging site:
-#   https://haynes2e.github.io/haynes2e-staging/
-# The contact form stays disabled (no Web3Forms key) and search engines are blocked.
 name: Deploy to staging
 
 on:
