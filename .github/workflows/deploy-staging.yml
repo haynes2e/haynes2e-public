@@ -1,0 +1,56 @@
+# Publishes the `demo` branch to the staging site:
+#   https://haynes2e.github.io/haynes2e-staging/
+# The contact form stays disabled (no Web3Forms key) and search engines are blocked.
+name: Deploy to staging
+
+on:
+  push:
+    branches: [demo]
+  workflow_dispatch:
+
+concurrency:
+  group: staging
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: staging
+      url: https://haynes2e.github.io/haynes2e-staging/
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build staging copy
+        run: |
+          cp -r site _site
+          # Never let a real key reach staging, even if one were committed by mistake.
+          grep -q '__WEB3FORMS_ACCESS_KEY__' _site/index.html || { echo "::error::Form key placeholder missing from index.html"; exit 1; }
+          for f in _site/*.html; do
+            sed -i 's|<!-- STAGING_HEAD -->|<meta name="robots" content="noindex,nofollow">|' "$f"
+            sed -i "s|<!-- STAGING_BANNER -->|<div class=\"staging-banner\">STAGING PREVIEW · ${GITHUB_SHA::7} · not the live site</div>|" "$f"
+          done
+          printf 'User-agent: *\nDisallow: /\n' > _site/robots.txt
+          touch _site/.nojekyll
+
+      - name: Push to haynes2e-staging (gh-pages)
+        env:
+          DEPLOY_KEY: ${{ secrets.STAGING_DEPLOY_KEY }}
+        run: |
+          test -n "$DEPLOY_KEY" || { echo "::error::STAGING_DEPLOY_KEY secret is not set in the 'staging' environment"; exit 1; }
+          mkdir -p ~/.ssh
+          printf '%s\n' "$DEPLOY_KEY" > ~/.ssh/staging_deploy
+          chmod 600 ~/.ssh/staging_deploy
+          # GitHub's published SSH host key (https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/githubs-ssh-key-fingerprints)
+          echo "github.com ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOMqqnkVzrm0SdG6UOoqKLsabgH5C9okWi0dh2l9GKJl" >> ~/.ssh/known_hosts
+          export GIT_SSH_COMMAND="ssh -i ~/.ssh/staging_deploy -o IdentitiesOnly=yes"
+          cd _site
+          git init -q -b gh-pages
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -q -m "Deploy ${GITHUB_REPOSITORY}@${GITHUB_SHA::7} (demo)"
+          git push --force git@github.com:haynes2e/haynes2e-staging.git gh-pages

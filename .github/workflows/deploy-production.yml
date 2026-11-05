@@ -1,0 +1,50 @@
+# Publishes the `master` branch to GitHub Pages for this repository
+# (haynes2e.github.io/haynes2e-public/, or haynes2e.com once the custom domain is set).
+#
+# Inactive until BOTH are true:
+#   1. Settings -> Pages -> Source = "GitHub Actions"
+#   2. Repository variable PRODUCTION_ENABLED = true
+# The Web3Forms key comes from the `github-pages` environment secret WEB3FORMS_ACCESS_KEY.
+name: Deploy to production
+
+on:
+  push:
+    branches: [master]
+  workflow_dispatch:
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+jobs:
+  deploy:
+    if: vars.PRODUCTION_ENABLED == 'true'
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build production copy
+        env:
+          WEB3FORMS_ACCESS_KEY: ${{ secrets.WEB3FORMS_ACCESS_KEY }}
+        run: |
+          [[ "$WEB3FORMS_ACCESS_KEY" =~ ^[0-9a-fA-F-]{36}$ ]] || { echo "::error::WEB3FORMS_ACCESS_KEY is missing or malformed in the github-pages environment"; exit 1; }
+          cp -r site _site
+          for f in _site/*.html; do
+            sed -i -e '/<!-- STAGING_HEAD -->/d' -e '/<!-- STAGING_BANNER -->/d' "$f"
+          done
+          sed -i "s|__WEB3FORMS_ACCESS_KEY__|${WEB3FORMS_ACCESS_KEY}|" _site/index.html
+
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+      - id: deployment
+        uses: actions/deploy-pages@v4
