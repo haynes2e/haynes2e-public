@@ -208,7 +208,7 @@ details p { color: var(--muted); padding-right: 40px; }
 .footer-bottom { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px 24px; }
 .footer-bottom p { margin: 0; font-size: .88rem; }
 .site-footer .credit { gap: .5em; font-size: .85rem; color: #bdb9b2; }
-.site-footer .credit img { width: 26px; height: auto; }
+.site-footer .credit img { width: 28px; height: 35px; }
 .site-footer .credit:hover { color: #fff; }
 
 /* Simple content pages (privacy) */
