@@ -21,6 +21,15 @@
     });
   }
 
+  // Analytics events (only fire when GA4 is loaded, i.e. on production)
+  function track(name, params) {
+    if (typeof window.gtag === 'function') window.gtag('event', name, params || {});
+  }
+  document.addEventListener('click', function (e) {
+    var link = e.target.closest('a[href^="tel:"]');
+    if (link) track('click_to_call', { link_url: link.getAttribute('href') });
+  });
+
   // Contact form (Web3Forms)
   var form = document.getElementById('contact-form');
   if (!form) return;
@@ -87,6 +96,7 @@
         if (r.ok && r.body.success) {
           form.reset();
           setStatus('Thank you! Your message has been sent. We will be in touch soon.', 'ok');
+          track('generate_lead', { form_id: 'contact-form' });
         } else {
           throw new Error(r.body.message || 'Submission failed');
         }

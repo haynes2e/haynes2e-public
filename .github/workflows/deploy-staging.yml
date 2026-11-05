@@ -28,9 +28,11 @@ jobs:
           grep -q '__WEB3FORMS_ACCESS_KEY__' _site/index.html || { echo "::error::Form key placeholder missing from index.html"; exit 1; }
           for f in _site/*.html; do
             sed -i 's|<!-- STAGING_HEAD -->|<meta name="robots" content="noindex,nofollow">|' "$f"
+            sed -i '/<!-- GA4 -->/d' "$f"
             sed -i "s|<!-- STAGING_BANNER -->|<div class=\"staging-banner\">STAGING PREVIEW · ${GITHUB_SHA::7} · not the live site</div>|" "$f"
           done
           printf 'User-agent: *\nDisallow: /\n' > _site/robots.txt
+          rm -f _site/sitemap.xml
           touch _site/.nojekyll
 
       - name: Push to haynes2e-staging (gh-pages)

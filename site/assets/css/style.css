@@ -207,6 +207,13 @@ details p { color: var(--muted); padding-right: 40px; }
 .footer-bottom { border-top: 1px solid #333634; padding: 18px 20px; }
 .footer-bottom p { margin: 0; font-size: .88rem; }
 
+/* Simple content pages (privacy) */
+.prose h1 { font-size: clamp(1.9rem, 3.4vw, 2.6rem); }
+.prose h2 { font-size: 1.35rem; margin-top: 1.8em; }
+.prose .muted { color: var(--muted); }
+.site-footer .footer-bottom:first-child { border-top: 0; padding-top: 0; }
+.site-footer:has(.footer-bottom:first-child) { padding-top: 18px; }
+
 /* Staging banner (only injected on the staging site) */
 .staging-banner {
   background: repeating-linear-gradient(45deg, #ffd23f, #ffd23f 14px, #f5c400 14px, #f5c400 28px);
@@ -226,6 +233,9 @@ details p { color: var(--muted); padding-right: 40px; }
     background: var(--charcoal); border-bottom: 3px solid var(--orange); padding: 8px 20px 20px;
   }
   .site-nav.open { display: flex; }
+  .site-nav.site-nav-static { display: flex; position: static; flex-direction: row; align-items: center; gap: 16px; padding: 0; border: 0; background: none; }
+  .site-nav.site-nav-static a:not(.btn) { padding: 0; border: 0; }
+  .site-nav.site-nav-static .btn { margin-top: 0; }
   .site-nav a:not(.btn) { padding: 12px 0; border-bottom: 1px solid #333634; }
   .site-nav .btn { margin-top: 14px; justify-content: center; }
   .header-inner { position: relative; }

@@ -27,6 +27,7 @@ jobs:
       - name: Build production copy
         env:
           WEB3FORMS_ACCESS_KEY: ${{ secrets.WEB3FORMS_ACCESS_KEY }}
+          GA4_MEASUREMENT_ID: ${{ vars.GA4_MEASUREMENT_ID }}
         run: |
           [[ "$WEB3FORMS_ACCESS_KEY" =~ ^[0-9a-fA-F-]{36}$ ]] || { echo "::error::WEB3FORMS_ACCESS_KEY is missing or malformed in the github-pages environment"; exit 1; }
           cp -r site _site
@@ -34,6 +35,14 @@ jobs:
             sed -i -e '/<!-- STAGING_HEAD -->/d' -e '/<!-- STAGING_BANNER -->/d' "$f"
           done
           sed -i "s|__WEB3FORMS_ACCESS_KEY__|${WEB3FORMS_ACCESS_KEY}|" _site/index.html
+          if [ -n "$GA4_MEASUREMENT_ID" ]; then
+            [[ "$GA4_MEASUREMENT_ID" =~ ^G-[A-Z0-9]{4,15}$ ]] || { echo "::error::GA4_MEASUREMENT_ID is malformed (expected G-XXXXXXX)"; exit 1; }
+            GA_TAG="<script async src=\"https://www.googletagmanager.com/gtag/js?id=${GA4_MEASUREMENT_ID}\"></script><script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','${GA4_MEASUREMENT_ID}');</script>"
+            for f in _site/*.html; do sed -i "s#<!-- GA4 -->#${GA_TAG}#" "$f"; done
+          else
+            echo "::notice::GA4_MEASUREMENT_ID not set; deploying without analytics"
+            for f in _site/*.html; do sed -i '/<!-- GA4 -->/d' "$f"; done
+          fi
 
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
