@@ -205,7 +205,11 @@ details p { color: var(--muted); padding-right: 40px; }
 .site-footer a { color: #e9e7e3; text-decoration: none; display: inline-flex; align-items: center; gap: .4em; }
 .site-footer a:hover { color: var(--orange); }
 .footer-bottom { border-top: 1px solid #333634; padding: 18px 20px; }
+.footer-bottom { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px 24px; }
 .footer-bottom p { margin: 0; font-size: .88rem; }
+.site-footer .credit { gap: .5em; font-size: .85rem; color: #bdb9b2; }
+.site-footer .credit img { width: 26px; height: auto; }
+.site-footer .credit:hover { color: #fff; }
 
 /* Simple content pages (privacy) */
 .prose h1 { font-size: clamp(1.9rem, 3.4vw, 2.6rem); }
