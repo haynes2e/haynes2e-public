@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://haynes2e.com/sitemap.xml
