@@ -34,7 +34,7 @@
   var form = document.getElementById('contact-form');
   if (!form) return;
 
-  var PHONE = '(417) 543-3431';
+  var PHONE = '(417) 209-5426';
   var status = form.querySelector('.form-status');
   var button = form.querySelector('button[type="submit"]');
   var key = form.getAttribute('data-access-key') || '';
