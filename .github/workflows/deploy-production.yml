@@ -50,3 +50,16 @@ jobs:
           path: _site
       - id: deployment
         uses: actions/deploy-pages@v4
+
+      # Tell IndexNow (Bing, Yandex, Seznam, ...) which pages changed. Never fails the deploy.
+      - name: Notify IndexNow
+        continue-on-error: true
+        run: |
+          KEY=""
+          for f in site/*.txt; do b=$(basename "$f" .txt); [[ "$b" =~ ^[0-9a-f]{32}$ ]] && KEY="$b"; done
+          if [ -z "$KEY" ]; then echo "No IndexNow key file in site/, skipping"; exit 0; fi
+          URLS=$(grep -o '<loc>[^<]*</loc>' site/sitemap.xml | sed -e 's#<loc>##' -e 's#</loc>##' | jq -R . | jq -s .)
+          BODY=$(jq -n --arg key "$KEY" --argjson urls "$URLS" '{host: "haynes2e.com", key: $key, keyLocation: ("https://haynes2e.com/" + $key + ".txt"), urlList: $urls}')
+          echo "$BODY"
+          CODE=$(curl -s -o response.txt -w '%{http_code}' -X POST https://api.indexnow.org/indexnow -H 'Content-Type: application/json; charset=utf-8' -d "$BODY")
+          echo "IndexNow responded HTTP $CODE (200/202 = accepted)"; cat response.txt || true
